@@ -23,12 +23,12 @@ One chatbot. Five already-live services. The user asks a plain-English question,
         ┌──────────┐  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
         │ todo_tool │  │food_tool │ │student_  │ │movie_tool│ │expense_  │
         │  (Sai)    │  │(Vishnu)  │ │tool      │ │(Jitendra)│ │tool      │
-        │           │  │          │ │(Abilasha)│ │          │ │(Nidhii)  │
+        │           │  │          │ │(Abhilash)│ │          │ │(Nidhii)  │
         └─────┬────┘  └─────┬────┘ └─────┬────┘ └─────┬────┘ └─────┬────┘
               │             │            │            │            │
               ▼             ▼            ▼            ▼            ▼
      todo-api-sai   food-order-api  student-api  movie-booking  expense-tracker
-     .onrender.com  -vishnu         -abilasha    -api-jitendra  -api-nidhii
+     .onrender.com  -vishnu         -Abhilash    -api-jitendra  -api-nidhii
                      .onrender.com  .onrender.com .onrender.com .onrender.com
                                           │
                                           ▼
@@ -47,14 +47,14 @@ Each of your five already-deployed FastAPI projects becomes a **tool** the agent
 
 | Name | Role | Owns | Sprint |
 |---|---|---|---|
-| **Abilasha** | Team Lead | Repo setup, DB logging, LangGraph router/agent, FastAPI + Swagger, Streamlit core, integration, code review | Sprint 0, 2, 3, 4, 5 |
+| **Abhilash** | Team Lead | Repo setup, DB logging, LangGraph router/agent, FastAPI + Swagger, Streamlit core, integration, code review | Sprint 0, 2, 3, 4, 5 |
 | Sai | Tool Engineer | `business_logic/todo_logic.py` (wraps his live Todo API) | Sprint 1 |
 | Vishnu | Tool Engineer | `business_logic/food_logic.py` (wraps his live Food Ordering API) | Sprint 1 |
 | Jitendra | Tool Engineer | `business_logic/movie_logic.py` (wraps his live Movie Booking API) | Sprint 1 |
 | Nidhii | Tool Engineer | `business_logic/expense_logic.py` (wraps her live Expense Tracker API) | Sprint 1 |
-| Abilasha | Tool Engineer (in addition to lead) | `business_logic/student_logic.py` (wraps her own live Student API) | Sprint 1 |
+| Abhilash | Tool Engineer (in addition to lead) | `business_logic/student_logic.py` (wraps her own live Student API) | Sprint 1 |
 
-**Important difference from your last project:** last time (the content pipeline), everyone had to build in strict one-after-another order because each stage needed the previous stage's real output to test against. **This project has no such chain** — each of the five tools calls a completely independent live API, so **Sai, Vishnu, Jitendra, Nidhii, and Abilasha can all build their tool in Sprint 1 at the same time.** Nobody waits on anybody else this time — that's the whole point of a router/tool pattern instead of a pipeline, and it's a good thing for the team to notice and understand as a design difference.
+**Important difference from your last project:** last time (the content pipeline), everyone had to build in strict one-after-another order because each stage needed the previous stage's real output to test against. **This project has no such chain** — each of the five tools calls a completely independent live API, so **Sai, Vishnu, Jitendra, Nidhii, and Abhilash can all build their tool in Sprint 1 at the same time.** Nobody waits on anybody else this time — that's the whole point of a router/tool pattern instead of a pipeline, and it's a good thing for the team to notice and understand as a design difference.
 
 ---
 
@@ -62,11 +62,11 @@ Each of your five already-deployed FastAPI projects becomes a **tool** the agent
 
 | Sprint | Owner(s) | What happens | Can start when… | Deliverable |
 |---|---|---|---|---|
-| **Sprint 0** | Abilasha | Repo, Postgres logging table + pgAdmin, shared Groq config, interface contract | Immediately | Repo pushed, everyone can clone |
-| **Sprint 1** | Sai, Vishnu, Jitendra, Nidhii, Abilasha — **all in parallel** | Each person wraps their own live API as one LangGraph tool | Sprint 0 is pushed | All 5 tool files merged into `main` |
-| **Sprint 2** | Abilasha | Build the LangGraph router/agent graph using all 5 merged tools | All 5 Sprint 1 PRs merged | Agent correctly picks the right tool for a test question in each domain |
-| **Sprint 3** | Abilasha | FastAPI wrapper + Swagger docs + Postgres query logging | Sprint 2 done | `/ask` endpoint working in Swagger UI |
-| **Sprint 4** | Abilasha (core UI) + all 4 members (one example question each) | Streamlit chatbot | Sprint 3 done | Working chat UI hitting the FastAPI backend |
+| **Sprint 0** | Abhilash | Repo, Postgres logging table + pgAdmin, shared Groq config, interface contract | Immediately | Repo pushed, everyone can clone |
+| **Sprint 1** | Sai, Vishnu, Jitendra, Nidhii, Abhilash — **all in parallel** | Each person wraps their own live API as one LangGraph tool | Sprint 0 is pushed | All 5 tool files merged into `main` |
+| **Sprint 2** | Abhilash | Build the LangGraph router/agent graph using all 5 merged tools | All 5 Sprint 1 PRs merged | Agent correctly picks the right tool for a test question in each domain |
+| **Sprint 3** | Abhilash | FastAPI wrapper + Swagger docs + Postgres query logging | Sprint 2 done | `/ask` endpoint working in Swagger UI |
+| **Sprint 4** | Abhilash (core UI) + all 4 members (one example question each) | Streamlit chatbot | Sprint 3 done | Working chat UI hitting the FastAPI backend |
 | **Sprint 5** | Whole team | End-to-end testing across all 5 domains, verify logs in pgAdmin, deploy | Sprint 4 done | Live, shareable demo |
 
 ---
@@ -112,7 +112,7 @@ Sprint <number> — <module name>
 <paste the printed output, or a Swagger screenshot>
 ```
 
-Abilasha reviews every PR against this template before merging — if "How I tested it" is empty, she sends it back.
+Abhilash reviews every PR against this template before merging — if "How I tested it" is empty, she sends it back.
 
 ---
 
@@ -156,7 +156,7 @@ pydantic
 
 ---
 
-## SPRINT 0 — Abilasha — Project Setup
+## SPRINT 0 — Abhilash — Project Setup
 
 ### 0.1 Create the shared repository
 
@@ -166,9 +166,9 @@ pydantic
 
 ```
 omnidesk-ai-router/
-├── main.py                       # Abilasha — FastAPI + Swagger (Sprint 3)
-├── agent_graph.py                # Abilasha — LangGraph router (Sprint 2)
-├── streamlit_app.py              # Abilasha + team (Sprint 4)
+├── main.py                       # Abhilash — FastAPI + Swagger (Sprint 3)
+├── agent_graph.py                # Abhilash — LangGraph router (Sprint 2)
+├── streamlit_app.py              # Abhilash + team (Sprint 4)
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
@@ -178,25 +178,25 @@ omnidesk-ai-router/
 │
 ├── config/                       # shared, cross-cutting configuration
 │   ├── __init__.py
-│   ├── config.py                 # Abilasha — shared Groq LLM setup
-│   └── session.py                # Abilasha — Postgres engine/session (replaces old database.py)
+│   ├── config.py                 # Abhilash — shared Groq LLM setup
+│   └── session.py                # Abhilash — Postgres engine/session (replaces old database.py)
 │
 ├── business_logic/               # domain rules — one file per service
 │   ├── __init__.py
 │   ├── models.py                 # shared domain types, fill in as needed
 │   ├── todo_logic.py             # Sai
 │   ├── food_logic.py             # Vishnu
-│   ├── student_logic.py          # Abilasha
+│   ├── student_logic.py          # Abhilash
 │   ├── movie_logic.py            # Jitendra
 │   └── expense_logic.py          # Nidhii
 │
 ├── dataaccess/                   # persistence layer
 │   ├── __init__.py
-│   └── data_models.py            # Abilasha — AgentQueryLog table (replaces old root models.py)
+│   └── data_models.py            # Abhilash — AgentQueryLog table (replaces old root models.py)
 │
 └── routers/                      # API layer
     ├── __init__.py
-    └── models.py                 # Abilasha — Pydantic request/response schemas (e.g. AskRequest)
+    └── models.py                 # Abhilash — Pydantic request/response schemas (e.g. AskRequest)
 ```
 
 This is the same layered structure documented in [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) — each teammate's Sprint 1 file lives in `business_logic/`, not a separate `tools/` folder, since the LLM-facing `@tool` wrapper and the domain logic are kept in one file per person for now.
@@ -214,7 +214,7 @@ pip freeze > requirements.txt
 ```
 Sai      — Todo API             — https://todo-api-sai.onrender.com
 Vishnu   — Food Ordering API    — https://food-order-api-vishnu.onrender.com
-Abilasha — Student API          — https://student-api-abilasha.onrender.com
+Abhilash — Student API          — https://student-api-Abhilash.onrender.com
 Jitendra — Movie Booking API    — https://movie-booking-api-jitendra.onrender.com
 Nidhii   — Expense Tracker API  — https://expense-tracker-api-nidhii.onrender.com
 ```
@@ -313,12 +313,12 @@ git push origin main
 
 ---
 
-## SPRINT 1 — Sai, Vishnu, Jitendra, Nidhii, Abilasha — Tool Wrapping (ALL IN PARALLEL)
+## SPRINT 1 — Sai, Vishnu, Jitendra, Nidhii, Abhilash — Tool Wrapping (ALL IN PARALLEL)
 
 **Everyone follows the same setup pattern below, then builds only their own file.**
 
 ```bash
-git clone https://github.com/ABILASHA_USERNAME/omnidesk-ai-router.git
+git clone https://github.com/Abhilash_USERNAME/omnidesk-ai-router.git
 cd omnidesk-ai-router
 git checkout -b feature/<your-tool-name>       # e.g. feature/todo-tool
 python -m venv venv
@@ -396,13 +396,13 @@ def food_tool(action: str, name: str = "", price: float = 0.0, item_id: int = No
         return f"Food ordering service is waking up or unreachable, try again in a moment. ({e})"
 ```
 
-### 1.3 Abilasha — `business_logic/student_logic.py`
+### 1.3 Abhilash — `business_logic/student_logic.py`
 
 ```python
 from langchain_core.tools import tool
 import requests
 
-BASE_URL = "https://student-api-abilasha.onrender.com"
+BASE_URL = "https://student-api-Abhilash.onrender.com"
 
 @tool
 def student_tool(action: str, name: str = "", email: str = "", department: str = "CSE",
@@ -515,7 +515,7 @@ git commit -m "feat(sai-todo-tool): add LangGraph tool wrapping the Todo API"
 git push origin feature/todo-tool
 ```
 
-Open a PR into `main` using the template from Section 4. Abilasha reviews and merges all 5 — since they're independent, she can merge them in any order as each one is ready.
+Open a PR into `main` using the template from Section 4. Abhilash reviews and merges all 5 — since they're independent, she can merge them in any order as each one is ready.
 
 ### Checklist (per person)
 - [ ] Own `.env` created with own Groq key (not committed)
@@ -526,7 +526,7 @@ Open a PR into `main` using the template from Section 4. Abilasha reviews and me
 
 ---
 
-## SPRINT 2 — Abilasha — The LangGraph Router Agent
+## SPRINT 2 — Abhilash — The LangGraph Router Agent
 
 **Start only after all 5 Sprint 1 PRs are merged.**
 
@@ -581,7 +581,7 @@ graph.set_entry_point("agent")
 graph.add_conditional_edges("agent", should_continue, {"tools": "tools", END: END})
 graph.add_edge("tools", "agent")
 
-app_graph = graph.compile()
+app_graph = graph.compile() 
 ```
 
 **How this decides which of the 5 "databases" to use:** `llm.bind_tools(tools)` gives the model all 5 tool docstrings at once. When you call `app_graph.invoke(...)`, the `agent` node asks the LLM "given this question and these 5 tools, what should happen next?" — the LLM picks the matching tool(s) based on the docstrings, `should_continue` routes to the `tools` node to actually execute it, and the graph loops back to `agent` so the LLM can either call another tool (for multi-part questions) or give a final answer. That loop, drawn as `agent → tools → agent → ... → END`, is the graph.
@@ -618,7 +618,7 @@ git push origin feature/router-graph
 
 ---
 
-## SPRINT 3 — Abilasha — FastAPI + Swagger + Postgres Logging
+## SPRINT 3 — Abhilash — FastAPI + Swagger + Postgres Logging
 
 **Start only after Sprint 2 is merged.**
 
@@ -709,11 +709,11 @@ git push origin feature/swagger-api
 
 ---
 
-## SPRINT 4 — Streamlit Chatbot (Abilasha builds core, everyone adds their own example)
+## SPRINT 4 — Streamlit Chatbot (Abhilash builds core, everyone adds their own example)
 
 **Start only after Sprint 3 is merged.**
 
-### 4.1 Abilasha builds `streamlit_app.py`
+### 4.1 Abhilash builds `streamlit_app.py`
 
 ```python
 import streamlit as st
@@ -728,7 +728,7 @@ with st.sidebar:
     st.subheader("Try asking:")
     st.write("- Add a task to buy groceries")           # Sai
     st.write("- Show me the food menu")                  # Vishnu
-    st.write("- Register a new student named Priya")     # Abilasha
+    st.write("- Register a new student named Priya")     # Abhilash
     st.write("- Book 2 tickets for Inception")            # Jitendra
     st.write("- What's my expense summary?")              # Nidhii
 
@@ -753,7 +753,7 @@ if question := st.chat_input("Ask me anything..."):
 
 ### 4.2 Each of the 4 members adds their own sidebar example question
 
-Small, fast, real team-collaboration task: Sai, Vishnu, Jitendra, and Nidhii each open a tiny PR that adds one better example question for their own domain to the sidebar list (Abilasha's placeholders above are a starting point, not final). This is a good first real PR for anyone nervous about touching shared code — small, low-risk, and everyone's name ends up in the file.
+Small, fast, real team-collaboration task: Sai, Vishnu, Jitendra, and Nidhii each open a tiny PR that adds one better example question for their own domain to the sidebar list (Abhilash's placeholders above are a starting point, not final). This is a good first real PR for anyone nervous about touching shared code — small, low-risk, and everyone's name ends up in the file.
 
 ```bash
 git checkout main
@@ -790,11 +790,11 @@ streamlit run streamlit_app.py
 
 ## Final Definition of Done
 
-- [ ] Abilasha: repo, Postgres logging, shared config set up (Sprint 0)
-- [ ] Sai, Vishnu, Jitendra, Nidhii, Abilasha: all 5 tools built in parallel and merged (Sprint 1)
-- [ ] Abilasha: LangGraph router correctly picks the right tool per domain, and handles multi-domain questions (Sprint 2)
-- [ ] Abilasha: `/ask` and `/logs` working in Swagger with Postgres logging (Sprint 3)
-- [ ] Abilasha + team: Streamlit chatbot working, every member's example question included (Sprint 4)
+- [ ] Abhilash: repo, Postgres logging, shared config set up (Sprint 0)
+- [ ] Sai, Vishnu, Jitendra, Nidhii, Abhilash: all 5 tools built in parallel and merged (Sprint 1)
+- [ ] Abhilash: LangGraph router correctly picks the right tool per domain, and handles multi-domain questions (Sprint 2)
+- [ ] Abhilash: `/ask` and `/logs` working in Swagger with Postgres logging (Sprint 3)
+- [ ] Abhilash + team: Streamlit chatbot working, every member's example question included (Sprint 4)
 - [ ] Whole team: live demo tested together, logs verified in pgAdmin, deployed live (Sprint 5)
 - [ ] Every commit follows the `type(scope): summary` format
 - [ ] Every PR follows the required template
