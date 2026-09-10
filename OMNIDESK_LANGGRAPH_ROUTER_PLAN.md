@@ -1,6 +1,8 @@
 # OmniDesk AI Router — LangGraph Multi-Service Agent
 ## End-to-End Team Project Plan (Sprint-wise, Git-Collaborative)
 
+> **Folder structure note:** this plan has been updated to match the repo's actual layered structure (`config/`, `business_logic/`, `dataaccess/`, `routers/`) instead of the flat single-folder layout originally sketched. See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for the full layer-by-layer explanation and per-person ownership rules — this doc's file paths below are kept consistent with it.
+
 ---
 
 ## 1. What we're building
@@ -46,11 +48,11 @@ Each of your five already-deployed FastAPI projects becomes a **tool** the agent
 | Name | Role | Owns | Sprint |
 |---|---|---|---|
 | **Abilasha** | Team Lead | Repo setup, DB logging, LangGraph router/agent, FastAPI + Swagger, Streamlit core, integration, code review | Sprint 0, 2, 3, 4, 5 |
-| Sai | Tool Engineer | `tools/todo_tool.py` (wraps his live Todo API) | Sprint 1 |
-| Vishnu | Tool Engineer | `tools/food_tool.py` (wraps his live Food Ordering API) | Sprint 1 |
-| Jitendra | Tool Engineer | `tools/movie_tool.py` (wraps his live Movie Booking API) | Sprint 1 |
-| Nidhii | Tool Engineer | `tools/expense_tool.py` (wraps her live Expense Tracker API) | Sprint 1 |
-| Abilasha | Tool Engineer (in addition to lead) | `tools/student_tool.py` (wraps her own live Student API) | Sprint 1 |
+| Sai | Tool Engineer | `business_logic/todo_logic.py` (wraps his live Todo API) | Sprint 1 |
+| Vishnu | Tool Engineer | `business_logic/food_logic.py` (wraps his live Food Ordering API) | Sprint 1 |
+| Jitendra | Tool Engineer | `business_logic/movie_logic.py` (wraps his live Movie Booking API) | Sprint 1 |
+| Nidhii | Tool Engineer | `business_logic/expense_logic.py` (wraps her live Expense Tracker API) | Sprint 1 |
+| Abilasha | Tool Engineer (in addition to lead) | `business_logic/student_logic.py` (wraps her own live Student API) | Sprint 1 |
 
 **Important difference from your last project:** last time (the content pipeline), everyone had to build in strict one-after-another order because each stage needed the previous stage's real output to test against. **This project has no such chain** — each of the five tools calls a completely independent live API, so **Sai, Vishnu, Jitendra, Nidhii, and Abilasha can all build their tool in Sprint 1 at the same time.** Nobody waits on anybody else this time — that's the whole point of a router/tool pattern instead of a pipeline, and it's a good thing for the team to notice and understand as a design difference.
 
@@ -164,24 +166,40 @@ pydantic
 
 ```
 omnidesk-ai-router/
-├── main.py                  # Abilasha — FastAPI + Swagger (Sprint 3)
-├── agent_graph.py           # Abilasha — LangGraph router (Sprint 2)
-├── config.py                # Abilasha — shared Groq LLM setup
-├── database.py               # Abilasha — Postgres connection
-├── models.py                 # Abilasha — query log table
-├── tools/
-│   ├── __init__.py
-│   ├── todo_tool.py          # Sai
-│   ├── food_tool.py          # Vishnu
-│   ├── student_tool.py       # Abilasha
-│   ├── movie_tool.py         # Jitendra
-│   └── expense_tool.py       # Nidhii
-├── streamlit_app.py          # Abilasha + team (Sprint 4)
+├── main.py                       # Abilasha — FastAPI + Swagger (Sprint 3)
+├── agent_graph.py                # Abilasha — LangGraph router (Sprint 2)
+├── streamlit_app.py              # Abilasha + team (Sprint 4)
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
-└── README.md
+├── README.md
+├── OMNIDESK_LANGGRAPH_ROUTER_PLAN.md   # this sprint plan
+├── PROJECT_STRUCTURE.md          # folder-structure & ownership guide
+│
+├── config/                       # shared, cross-cutting configuration
+│   ├── __init__.py
+│   ├── config.py                 # Abilasha — shared Groq LLM setup
+│   └── session.py                # Abilasha — Postgres engine/session (replaces old database.py)
+│
+├── business_logic/               # domain rules — one file per service
+│   ├── __init__.py
+│   ├── models.py                 # shared domain types, fill in as needed
+│   ├── todo_logic.py             # Sai
+│   ├── food_logic.py             # Vishnu
+│   ├── student_logic.py          # Abilasha
+│   ├── movie_logic.py            # Jitendra
+│   └── expense_logic.py          # Nidhii
+│
+├── dataaccess/                   # persistence layer
+│   ├── __init__.py
+│   └── data_models.py            # Abilasha — AgentQueryLog table (replaces old root models.py)
+│
+└── routers/                      # API layer
+    ├── __init__.py
+    └── models.py                 # Abilasha — Pydantic request/response schemas (e.g. AskRequest)
 ```
+
+This is the same layered structure documented in [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) — each teammate's Sprint 1 file lives in `business_logic/`, not a separate `tools/` folder, since the LLM-facing `@tool` wrapper and the domain logic are kept in one file per person for now.
 
 ```bash
 python -m venv venv
@@ -203,7 +221,7 @@ Nidhii   — Expense Tracker API  — https://expense-tracker-api-nidhii.onrende
 
 > These free Render services spin down after 15 minutes idle — the first call after a while can take up to a minute to "wake up." Every tool below handles this with a 60-second timeout instead of failing instantly.
 
-### 0.3 `config.py`
+### 0.3 `config/config.py`
 
 ```python
 import os
@@ -219,7 +237,7 @@ llm = ChatGroq(
 )
 ```
 
-### 0.4 `database.py`
+### 0.4 `config/session.py`
 
 ```python
 import os
@@ -245,12 +263,12 @@ def get_db():
         db.close()
 ```
 
-### 0.5 `models.py`
+### 0.5 `dataaccess/data_models.py`
 
 ```python
 from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.sql import func
-from database import Base
+from config.session import Base
 
 class AgentQueryLog(Base):
     __tablename__ = "agent_query_logs"
@@ -309,7 +327,7 @@ pip install -r requirements.txt
 ```
 Create your own `.env` with your own Groq API key (never commit it).
 
-### 1.1 Sai — `tools/todo_tool.py`
+### 1.1 Sai — `business_logic/todo_logic.py`
 
 ```python
 from langchain_core.tools import tool
@@ -344,7 +362,7 @@ def todo_tool(action: str, title: str = "", priority: str = "medium", task_id: i
         return f"Todo service is waking up or unreachable, try again in a moment. ({e})"
 ```
 
-### 1.2 Vishnu — `tools/food_tool.py`
+### 1.2 Vishnu — `business_logic/food_logic.py`
 
 ```python
 from langchain_core.tools import tool
@@ -378,7 +396,7 @@ def food_tool(action: str, name: str = "", price: float = 0.0, item_id: int = No
         return f"Food ordering service is waking up or unreachable, try again in a moment. ({e})"
 ```
 
-### 1.3 Abilasha — `tools/student_tool.py`
+### 1.3 Abilasha — `business_logic/student_logic.py`
 
 ```python
 from langchain_core.tools import tool
@@ -414,7 +432,7 @@ def student_tool(action: str, name: str = "", email: str = "", department: str =
         return f"Student service is waking up or unreachable, try again in a moment. ({e})"
 ```
 
-### 1.4 Jitendra — `tools/movie_tool.py`
+### 1.4 Jitendra — `business_logic/movie_logic.py`
 
 ```python
 from langchain_core.tools import tool
@@ -448,7 +466,7 @@ def movie_tool(action: str, title: str = "", language: str = "Telugu", movie_id:
         return f"Movie booking service is waking up or unreachable, try again in a moment. ({e})"
 ```
 
-### 1.5 Nidhii — `tools/expense_tool.py`
+### 1.5 Nidhii — `business_logic/expense_logic.py`
 
 ```python
 from langchain_core.tools import tool
@@ -485,14 +503,14 @@ def expense_tool(action: str, title: str = "", amount: float = 0.0, category: st
 
 ```python
 # test_my_tool.py — do not commit
-from tools.todo_tool import todo_tool     # swap for your own tool
+from business_logic.todo_logic import todo_tool     # swap for your own tool
 print(todo_tool.invoke({"action": "list"}))
 ```
 
 ### 1.7 Everyone: commit and open a PR (using the format from Section 4)
 
 ```bash
-git add tools/todo_tool.py
+git add business_logic/todo_logic.py
 git commit -m "feat(sai-todo-tool): add LangGraph tool wrapping the Todo API"
 git push origin feature/todo-tool
 ```
@@ -530,13 +548,13 @@ import operator
 from langchain_core.messages import BaseMessage
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
-from config import llm
+from config.config import llm
 
-from tools.todo_tool import todo_tool
-from tools.food_tool import food_tool
-from tools.student_tool import student_tool
-from tools.movie_tool import movie_tool
-from tools.expense_tool import expense_tool
+from business_logic.todo_logic import todo_tool
+from business_logic.food_logic import food_tool
+from business_logic.student_logic import student_tool
+from business_logic.movie_logic import movie_tool
+from business_logic.expense_logic import expense_tool
 
 tools = [todo_tool, food_tool, student_tool, movie_tool, expense_tool]
 llm_with_tools = llm.bind_tools(tools)
@@ -604,16 +622,27 @@ git push origin feature/router-graph
 
 **Start only after Sprint 2 is merged.**
 
-### 3.1 Build `main.py`
+### 3.1 `routers/models.py`
+
+The request schema moves into the API layer, separate from the `AgentQueryLog` ORM table in `dataaccess/data_models.py`:
+
+```python
+from pydantic import BaseModel
+
+class AskRequest(BaseModel):
+    question: str
+```
+
+### 3.2 Build `main.py`
 
 ```python
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 from langchain_core.messages import HumanMessage, ToolMessage
 
-from database import engine, get_db, Base
-import models
+from config.session import engine, get_db, Base
+from dataaccess import data_models
+from routers.models import AskRequest
 from agent_graph import app_graph
 
 Base.metadata.create_all(bind=engine)
@@ -625,9 +654,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-class AskRequest(BaseModel):
-    question: str
-
 @app.post("/ask", tags=["Agent"], summary="Ask a question — the agent picks the right service automatically")
 def ask(request: AskRequest, db: Session = Depends(get_db)):
     result = app_graph.invoke({"messages": [HumanMessage(content=request.question)]})
@@ -635,7 +661,7 @@ def ask(request: AskRequest, db: Session = Depends(get_db)):
     final_answer = messages[-1].content
     tools_used = [m.name for m in messages if isinstance(m, ToolMessage)]
 
-    log = models.AgentQueryLog(
+    log = data_models.AgentQueryLog(
         question=request.question,
         tool_used=", ".join(tools_used) if tools_used else "none",
         answer=final_answer,
@@ -647,14 +673,14 @@ def ask(request: AskRequest, db: Session = Depends(get_db)):
 
 @app.get("/logs", tags=["Agent"], summary="See every question asked and which service handled it")
 def get_logs(db: Session = Depends(get_db)):
-    return db.query(models.AgentQueryLog).all()
+    return db.query(data_models.AgentQueryLog).all()
 
 @app.get("/health", tags=["System"], summary="Check the API is alive")
 def health_check():
     return {"status": "ok"}
 ```
 
-### 3.2 Run it and check Swagger
+### 3.3 Run it and check Swagger
 
 ```bash
 uvicorn main:app --reload
@@ -662,14 +688,14 @@ uvicorn main:app --reload
 
 Open **http://127.0.0.1:8000/docs**. Try **POST /ask** with a question from each domain, then check **GET /logs** to confirm it's saving every question and which tool answered it.
 
-### 3.3 Verify in pgAdmin
+### 3.4 Verify in pgAdmin
 
 Open pgAdmin, connect to `omnidesk_db`, expand **Tables → agent_query_logs → View/Edit Data → All Rows** — you should see every question you just asked in Swagger, with the correct `tool_used` column filled in.
 
-### 3.4 Commit and PR
+### 3.5 Commit and PR
 
 ```bash
-git add main.py
+git add main.py routers/models.py
 git commit -m "feat(swagger-api): add /ask and /logs endpoints with Postgres logging"
 git push origin feature/swagger-api
 ```
