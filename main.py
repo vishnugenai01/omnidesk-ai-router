@@ -2,11 +2,12 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 
-from config.session import get_db
+from config.session import get_db, engine
 from dataaccess import data_models
 from routers.models import AskRequest
 from agent_graph import app_graph
 
+data_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="OmniDesk AI Router",

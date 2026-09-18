@@ -1,2 +1,4 @@
-# omnidesk-ai-router
-Student API Live URL - https://student-management-d2uq.onrender.com
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload
