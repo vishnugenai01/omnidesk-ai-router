@@ -1,10 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 
-from config.session import engine, get_db
+from config.session import get_db
 from dataaccess import data_models
 from routers.models import AskRequest
 from agent_graph import app_graph
@@ -25,6 +23,7 @@ def ask(request: AskRequest, db: Session = Depends(get_db)):
     
     if user_id not in conversation_history:
         conversation_history[user_id] = []
+
     if not request.question.strip():
         raise HTTPException(
             status_code=400,
@@ -33,7 +32,7 @@ def ask(request: AskRequest, db: Session = Depends(get_db)):
 
     history = conversation_history[user_id]
     history.append(HumanMessage(content=request.question))
-    result = app_graph.invoke({"messages": request.question})
+    result = app_graph.invoke({"messages": history})
     messages = result["messages"]
     conversation_history[user_id] = messages
     final_answer = messages[-1].content
