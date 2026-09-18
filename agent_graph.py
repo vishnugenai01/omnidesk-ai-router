@@ -7,6 +7,209 @@ from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 
 from config.config import llm
+NATURAL LANGUAGE, CONDITIONS & MULTI-TOOL EXECUTION
+
+The user may express one or more operations, filters, conditions,
+or actions in a single natural-language request.
+
+You must understand the complete user request, identify ALL required
+operations, and execute ALL necessary tools before giving the final
+answer.
+
+Do NOT stop after executing only one tool if the request requires
+multiple tools.
+
+------------------------------------------------------------
+1. UNDERSTAND NATURAL LANGUAGE
+------------------------------------------------------------
+
+Users may use different words for the same concept.
+
+Student:
+- student
+- student details
+- learner
+- student record
+
+Student ID:
+- student id
+- student number
+- roll number
+- ID
+
+Course:
+- course
+- subject
+- class
+- paper
+- course name
+
+Marks:
+- marks
+- score
+- scored
+- obtained marks
+- marks gained
+- grade/score
+
+Enrollment:
+- enroll
+- register for a course
+- join a course
+- add to course
+- register student in course
+
+Passing:
+- passed
+- cleared
+- qualified
+- successfully completed
+
+Failing:
+- failed
+- did not clear
+- not passed
+
+------------------------------------------------------------
+2. CONDITION INTERPRETATION
+------------------------------------------------------------
+
+Understand common conditions from natural language.
+
+Examples:
+
+"more than 70"
+=> marks > 70
+
+"above 70"
+=> marks > 70
+
+"greater than 70"
+=> marks > 70
+
+"70 or more"
+=> marks >= 70
+
+"at least 70"
+=> marks >= 70
+
+"less than 40"
+=> marks < 40
+
+"below 40"
+=> marks < 40
+
+"40 or less"
+=> marks <= 40
+
+"between 60 and 80"
+=> marks >= 60 AND marks <= 80
+
+"exactly 75"
+=> marks == 75
+
+"cleared C language"
+=> subject = C Language AND passed
+
+"failed Python"
+=> subject = Python AND failed
+
+"third year"
+=> year = 3
+
+"second year"
+=> year = 2
+
+"IT students"
+=> department = IT
+
+"CSE students"
+=> department = CSE
+
+------------------------------------------------------------
+3. LOGICAL CONDITIONS
+------------------------------------------------------------
+
+Understand logical operators expressed naturally.
+
+"and"
+=> ALL conditions must be satisfied.
+
+"or"
+=> ANY of the specified conditions may be satisfied.
+
+"either ... or ..."
+=> OR condition.
+
+"both ... and ..."
+=> AND condition.
+
+"who are from IT and scored above 70"
+=> department = IT AND marks > 70
+
+"who are from IT or CSE"
+=> department = IT OR department = CSE
+
+"who passed C language and Python"
+=> passed C Language AND passed Python
+
+"who failed either C language or Python"
+=> failed C Language OR failed Python
+
+------------------------------------------------------------
+4. FILTERING REQUESTS
+------------------------------------------------------------
+
+When the user asks for students matching conditions, identify every
+condition before executing tools.
+
+Examples:
+
+"Give me all students who cleared C language and scored more than 70."
+
+Interpret as:
+- subject = C Language
+- passed = true
+- marks > 70
+
+"Show all IT students who scored more than 70."
+
+Interpret as:
+- department = IT
+- marks > 70
+
+"Give me all CSE students who passed Python with at least 60 marks."
+
+Interpret as:
+- department = CSE
+- subject = Python
+- passed = true
+- marks >= 60
+
+"Show students from IT who failed either C language or Python."
+
+Interpret as:
+- department = IT
+- failed C Language OR failed Python
+
+"Give me students who scored between 60 and 80 in Machine Learning
+and are in third year."
+
+Interpret as:
+- subject = Machine Learning
+- marks >= 60
+- marks <= 80
+- year = 3
+
+Do not invent missing information.
+
+------------------------------------------------------------
+5. MULTIPLE TOOLS IN ONE REQUEST
+------------------------------------------------------------
+
+A single request can require multiple tools.
+
+You must identify all required actions and execute them.
 from business_logic.food_logic import (add_restaurant, list_restaurants, add_menu_by_restaurant_id, get_menu_by_restaurant_id, 
 get_best_items_by_restaurant_id, update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders,
 get_order, update_order_status, cancel_order)
