@@ -13,7 +13,7 @@ from langgraph.prebuilt import ToolNode
 
 from config.config import llm
 from business_logic.food_logic import (add_restaurant, list_restaurants, add_menu_by_restaurant_id, get_menu_by_restaurant_id,
-get_best_items_by_restaurant_id, update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders,
+get_best_items_by_restaurant_id, get_menu_by_dietary_tag, update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders,
 get_order, update_order_status, cancel_order)
 
 from business_logic.expense_logic import (
@@ -40,8 +40,36 @@ from business_logic.expense_logic import (
     check_budget_service_health
 )
 
-tools = [add_restaurant, list_restaurants, add_menu_by_restaurant_id, get_menu_by_restaurant_id, get_best_items_by_restaurant_id,
-         update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders, get_order, update_order_status, cancel_order]
+from business_logic.movie_logic import (
+    list_movies,
+    get_movies_by_language,
+    get_movie,
+    add_movie,
+    update_movie,
+    delete_movie,
+    get_seat_count,
+    book_tickets,
+    get_booking,
+    cancel_booking
+)
+
+from business_logic.student_logic import (
+    list_students,
+    register_student,
+    get_student,
+    update_student,
+    delete_student,
+    list_courses,
+    create_course,
+    enroll_student,
+    add_marks,
+    get_result
+)
+
+from tools.todo_tool import todo_tool
+
+food_tools = [add_restaurant, list_restaurants, add_menu_by_restaurant_id, get_menu_by_restaurant_id, get_best_items_by_restaurant_id,
+         get_menu_by_dietary_tag, update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders, get_order, update_order_status, cancel_order]
 
 expense_tools = [
     # Expense
@@ -63,7 +91,35 @@ expense_tools = [
     check_budget_service_health
 ]
 
-tools = tools.extend(expense_tools)
+movie_tools = [
+    list_movies,
+    get_movies_by_language,
+    get_movie,
+    add_movie,
+    update_movie,
+    delete_movie,
+    get_seat_count,
+    book_tickets,
+    get_booking,
+    cancel_booking
+]
+
+student_tools = [
+    list_students,
+    register_student,
+    get_student,
+    update_student,
+    delete_student,
+    list_courses,
+    create_course,
+    enroll_student,
+    add_marks,
+    get_result
+]
+
+todo_tools = [todo_tool]
+
+tools = food_tools + expense_tools + movie_tools + student_tools + todo_tools
 
 llm_with_tools = llm.bind_tools(tools)
 
@@ -1127,7 +1183,7 @@ delete_item_by_item_id
 
 add_orders
 
-get_order_statistics
+get_orders_statistics
 
 get_user_orders
 
@@ -1202,7 +1258,7 @@ If the user asks for order statistics:
 
 Use:
 
-get_order_statistics
+get_orders_statistics
 
 
 If the user asks for a user's order history:
@@ -1509,7 +1565,7 @@ class AgentState(TypedDict):
 def call_model(state: AgentState):
 
     messages = [
-        SystemMessage(content=SYSTEM_PROMPT)
+        SYSTEM_PROMPT
     ] + state["messages"]
 
     response = llm_with_tools.invoke(messages)
