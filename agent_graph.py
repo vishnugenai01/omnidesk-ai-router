@@ -8,7 +8,7 @@ from langgraph.prebuilt import ToolNode
 
 from config.config import llm
 from business_logic.food_logic import (add_restaurant, list_restaurants, add_menu_by_restaurant_id, get_menu_by_restaurant_id, 
-get_best_items_by_restaurant_id, update_menu_by_item_id, delete_item_by_item_id, add_orders, get_order_statistics, get_user_orders,
+get_best_items_by_restaurant_id, update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders,
 get_order, update_order_status, cancel_order)
 
 
@@ -202,13 +202,33 @@ reply:
 
 
 Do not use web search or external knowledge.
+
+FOOD API ERROR RULES:
+
+The tool response is the only source of truth.
+
+Never interpret a generic HTTP 404 as meaning that the database record does not exist.
+
+If the API returns:
+{"detail": "Item 17 not found"}
+
+then you may tell the user that item 17 was not found.
+
+If the API returns:
+{"detail": "Not Found"}
+
+then say that the requested API endpoint returned 404 Not Found.
+
+Do not claim that a restaurant has no menu items unless the API explicitly returns that information.
+
+Do not invent explanations for API errors.
 """
 
 class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], operator.add]
 
 tools = (add_restaurant, list_restaurants, add_menu_by_restaurant_id, get_menu_by_restaurant_id, get_best_items_by_restaurant_id, 
-update_menu_by_item_id, delete_item_by_item_id, add_orders, get_order_statistics, get_user_orders, get_order, update_order_status, cancel_order)
+update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders, get_order, update_order_status, cancel_order)
 
 llm = ChatGroq(model="openai/gpt-oss-120b",temperature=0)
 

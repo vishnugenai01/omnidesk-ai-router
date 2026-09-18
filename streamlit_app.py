@@ -27,7 +27,7 @@ with st.sidebar:
 
     USER_ID = st.text_input(
         "Enter your User ID",
-        value="1"
+        value=" "
     )
 
     st.divider()
