@@ -247,28 +247,29 @@ def check_expense_service_health() -> str:
 
 
 # ------------------------------------------------------------
-# CREATE BUDGET
+# BUDGET TOOL
 # ------------------------------------------------------------
 
 @tool
 def add_budget(
+    budget_id : int,
     budget_amount: float,
-    total_spent: float,
-    remaining_amt: float,
-    month: str,
-    user_id: int,
-    user_name: str
+    total_spent: float = 0.0,
+    remaining_amt: float = 0.0,
+    month: str = "",
+    user_id: int = 1,
+    user_name: str = ""
 ) -> str:
-    """Create a new monthly budget.
+    """Create a new monthly budget."""
 
-    Args:
-        budget_amount: Total budget amount for the month
-        total_spent: Total amount already spent
-        remaining_amt: Remaining amount in the budget
-        month: Month for the budget
-        user_id: ID of the user
-        user_name: Name of the user
-    """
+    print(
+        f"Request body is budget: {budget_amount}, "
+        f"month: {month}, "
+        f"user_id: {user_id}, "
+        f"user_name: {user_name}, "
+        f"total_spent: {total_spent}, "
+        f"remaining_amt: {remaining_amt}"
+    )
 
     if budget_amount <= 0:
         return "Please provide a valid budget amount."
@@ -282,7 +283,12 @@ def add_budget(
     if not user_name:
         return "Please provide the user_name."
 
+    # Calculate remaining amount automatically
+    if remaining_amt <= 0:
+        remaining_amt = budget_amount - total_spent
+
     data = {
+        "budget_id" : budget_id,
         "budget_amount": budget_amount,
         "total_spent": total_spent,
         "remaining_amt": remaining_amt,
@@ -291,12 +297,19 @@ def add_budget(
         "user_name": user_name
     }
 
+    print(f"Passing data is {data}")
+
     try:
         res = requests.post(
-            f"{BASE_URL}/budget",
-            json=data,
-            timeout=60
+            f"{BASE_URL}/budget/budget",
+            json=data
         )
+
+        print(f"API response is {res.text}")
+        print(f"API response code is {res.status_code}")
+
+        if res.status_code >= 400:
+            return f"Unable to create budget: {res.text}"
 
         return res.text
 
@@ -306,17 +319,25 @@ def add_budget(
             f"Please try again in a moment. ({e})"
         )
 
-
-# ------------------------------------------------------------
-# GET BUDGET STATUS
-# ------------------------------------------------------------
-
 @tool
 def get_budget_status() -> str:
-    """Get the current budget status.
+    """Get all existing monthly budgets.
 
-    Returns the current budget information including
-    budget amount, total spent, and remaining amount.
+    Use this tool whenever the user asks to:
+    - show all budgets
+    - get all budgets
+    - list all budgets
+    - show my budgets
+    - display all budgets
+    - see all monthly budgets
+    - get the complete budget list
+
+    This tool returns all budget records, including:
+    budget ID, budget amount, total spent, remaining amount,
+    month, and status.
+
+    Do NOT use this tool when the user asks for one specific
+    budget by ID. For a specific budget ID, use get_budget.
     """
 
     try:
@@ -333,16 +354,12 @@ def get_budget_status() -> str:
             f"Please try again in a moment. ({e})"
         )
 
-# ------------------------------------------------------------
-# GET BUDGET BY ID
-# ------------------------------------------------------------
-
 @tool
 def get_budget(budget_id: int) -> str:
     """Get a specific budget using its budget ID.
 
-    Args:
-        budget_id: Unique ID of the budget to retrieve
+    Use this tool when the user asks for one specific budget
+    by ID, such as "get budget with id 5".
     """
 
     if budget_id <= 0:
@@ -350,9 +367,19 @@ def get_budget(budget_id: int) -> str:
 
     try:
         res = requests.get(
-            f"{BASE_URL}/budget/{budget_id}",
+            f"{BASE_URL}/budget/budget/{budget_id}",
             timeout=60
         )
+
+        print(f"GET BUDGET URL: {BASE_URL}/budget/budget/{budget_id}")
+        print(f"GET BUDGET STATUS: {res.status_code}")
+        print(f"GET BUDGET RESPONSE: {res.text}")
+
+        if res.status_code == 404:
+            return f"No budget found with ID {budget_id}."
+
+        if res.status_code >= 400:
+            return f"Unable to get budget: {res.text}"
 
         return res.text
 
@@ -362,27 +389,37 @@ def get_budget(budget_id: int) -> str:
             f"Please try again in a moment. ({e})"
         )
 
-
-# ------------------------------------------------------------
-# GET BUDGET BY USER
-# ------------------------------------------------------------
-
 @tool
 def get_budget_by_user(user_id: int) -> str:
-    """Get the budget belonging to a specific user.
+    """Get all budgets belonging to a specific user.
 
-    Args:
-        user_id: ID of the user whose budget should be retrieved
+    Use this tool when the user asks for budgets by user ID,
+    for example:
+    - get budget with user id 2
+    - show budgets for user 2
+    - get all budgets of user 2
     """
 
     if user_id <= 0:
         return "Please provide a valid user_id."
 
     try:
+        url = f"{BASE_URL}/budget/budget/user/{user_id}"
+
         res = requests.get(
-            f"{BASE_URL}/budget/user/{user_id}",
+            url,
             timeout=60
         )
+
+        print(f"GET BUDGET BY USER URL: {url}")
+        print(f"STATUS CODE: {res.status_code}")
+        print(f"RESPONSE: {res.text}")
+
+        if res.status_code == 404:
+            return f"No budget found for user ID {user_id}."
+
+        if res.status_code >= 400:
+            return f"Unable to get budget for user {user_id}: {res.text}"
 
         return res.text
 
@@ -391,11 +428,6 @@ def get_budget_by_user(user_id: int) -> str:
             "Budget service is waking up or unreachable. "
             f"Please try again in a moment. ({e})"
         )
-
-
-# ------------------------------------------------------------
-# BUDGET HEALTH
-# ------------------------------------------------------------
 
 @tool
 def check_budget_service_health() -> str:
