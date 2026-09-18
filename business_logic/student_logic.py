@@ -167,8 +167,7 @@ def delete_student(student_id: int) -> str:
 
     except requests.exceptions.RequestException as e:
         return f"Error deleting student: {e}"
-
-    
+  
 
 #Get the courses
 @tool
