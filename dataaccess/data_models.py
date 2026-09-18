@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.sql import func
-from config.session import Base
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+
 Base = declarative_base()
 
 class AgentQueryLog(Base):

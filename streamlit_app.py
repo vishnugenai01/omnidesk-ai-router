@@ -1,11 +1,7 @@
 import streamlit as st
 import requests
 
-
 API_URL = "http://127.0.0.1:8000/ask"
-
-
-# PAGE
 
 st.set_page_config(
     page_title="OmniDesk AI Assistant",
@@ -19,43 +15,31 @@ st.caption(
     "students, movie bookings, or expenses."
 )
 
-# SIDEBAR
 
 with st.sidebar:
-
     st.subheader("User")
-
     USER_ID = st.text_input(
         "Enter your User ID",
-        value=" "
+        value="1"
     )
-
     st.divider()
 
     st.subheader("Try asking:")
 
     st.write("- I want Kadai Paneer")
     st.write("- Show me my orders")
-    st.write("- Show me the food menu")
-    st.write("- Place an order for Chicken Fried Rice")
-    st.write("- What is my order status?")
-
-# USER ID
+    st.write("- Add a ₹400 expense for lunch today, category food")
 
 if not USER_ID:
-
     st.warning(
         "Please enter your User ID to start chatting."
     )
-
     st.stop()
 
 # CHAT HISTORY - STREAMLIT DISPLAY
 
 if "messages" not in st.session_state:
-
     st.session_state.messages = []
-
 
 for msg in st.session_state.messages:
 
@@ -66,8 +50,7 @@ for msg in st.session_state.messages:
 
 if question := st.chat_input("Ask me anything..."):
 
-    # Display user message
-
+# Display user message
     st.session_state.messages.append(
         {
             "role": "user",
@@ -81,7 +64,6 @@ if question := st.chat_input("Ask me anything..."):
     # Call FastAPI
 
     try:
-
         response = requests.post(
             API_URL,
             json={
@@ -90,47 +72,29 @@ if question := st.chat_input("Ask me anything..."):
             },
             timeout=120
         )
-
         # Check HTTP status
-
         if response.status_code != 200:
 
             st.error(
                 f"Backend returned HTTP {response.status_code}"
             )
-
             st.code(response.text)
-
             st.stop()
-
-        # Parse JSON
-
         try:
 
             data = response.json()
 
         except requests.exceptions.JSONDecodeError:
-
             st.error(
                 "Backend returned invalid JSON."
             )
-
             st.code(response.text)
-
             st.stop()
-
-
         # Get answer
 
-        answer = data.get(
-            "answer",
-            "No answer returned."
-        )
+        answer = data.get("answer")
 
-        tools_used = data.get(
-            "tools_used",
-            []
-        )
+        tools_used = data.get("tools_used",[])
 
         routed_to = (
             ", ".join(tools_used)
@@ -138,7 +102,10 @@ if question := st.chat_input("Ask me anything..."):
             else "general chat"
         )
 
-        # Save assistant message
+        if not answer:
+            st.error(
+                "Unable to process at the moment"
+            )
 
         st.session_state.messages.append(
             {
@@ -146,9 +113,7 @@ if question := st.chat_input("Ask me anything..."):
                 "content": answer
             }
         )
-        
         # Display assistant response
-
         with st.chat_message("assistant"):
 
             st.markdown(answer)
@@ -156,28 +121,19 @@ if question := st.chat_input("Ask me anything..."):
             st.caption(
                 f"Routed to: {routed_to}"
             )
-
     # Connection error
-
     except requests.exceptions.ConnectionError:
-
         st.error(
             "Could not connect to the FastAPI server."
         )
-
     # Timeout
 
     except requests.exceptions.Timeout:
-
         st.error(
             "The request timed out."
         )
-
     # Other request errors
- 
- 
     except requests.exceptions.RequestException as e:
-
         st.error(
             f"Request failed: {str(e)}"
         )
