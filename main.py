@@ -2,13 +2,12 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 
-from config.session import engine, get_db
+from config.session import engine, get_db, Base
 from dataaccess import data_models
 from routers.models import AskRequest
 from agent_graph import app_graph
-from sqlalchemy.ext.declarative import declarative_base
 
-data_models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="OmniDesk AI Router",
@@ -57,7 +56,8 @@ def ask(request: AskRequest, db: Session = Depends(get_db)):
     return {
         "question": request.question,
         "tools_used": tools_used,
-        "answer": final_answer
+        "answer": final_answer,
+        "user_id": user_id
     }
 
 @app.get("/logs", tags=["Agent"], summary="See every question asked and which service handled it")
