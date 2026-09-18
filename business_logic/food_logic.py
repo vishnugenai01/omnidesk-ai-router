@@ -151,6 +151,30 @@ def get_best_items_by_restaurant_id(restaurant_id: str) -> str:
         return f"Food API connection Error: {str(e)}"
     
 @tool
+def get_menu_by_dietary_tag(restaurant_id: str, dietary_tag: str) -> str:
+    """
+    Get restaurant information for a specific restaurant.
+    Use this tool whenever the user wants to see the restaurant information.
+    """
+    try:
+        response = requests.get(
+            f"{BASE_URL}/restaurants/{restaurant_id}/dietary_tag/{dietary_tag}",
+            timeout=60
+        )
+
+        if not response.ok:
+            return(
+                f"Food API Error\n"
+                f"status code: {response.status_code}\n"
+                f"Response: {response.text}"
+            )
+        return response.text
+
+    except requests.exceptions.RequestException as e:
+        return f"Food API connection Error: {str(e)}"
+    
+    
+@tool
 def update_menu_by_item_id(
     item_id: str,
     name: str,
@@ -165,7 +189,7 @@ def update_menu_by_item_id(
     """
     try:
         response = requests.put(
-            f"{BASE_URL}/menu/item/{item_id}",
+            f"{BASE_URL}/menu/{item_id}",
             json={
                 "name": name,
                 "price": price,
@@ -195,7 +219,7 @@ def delete_item_by_item_id(item_id: str) -> str:
     """
     try:
         response = requests.delete(
-            f"{BASE_URL}/menu/item/{item_id}",
+            f"{BASE_URL}/menu/{item_id}",
             timeout=60
         )
 
@@ -217,12 +241,25 @@ def add_orders(
     item_id: str,
     quantity: int,
 ) -> str:
-    """add order to the database.
-    use this tool whenever the user wants to add an order.
+    """create a new order.
+    use this tool whenever the user wants to place an order.
     """
+    
+    if not user_id:
+        return "User ID is required"
+    
+    if not restaurant_id:
+        return "Restaurant ID is required"
+    
+    if not item_id:
+        return "Item ID is required"
+    
+    if not quantity:
+        return "Quantity is required"
+    
     try:
         response = requests.post(
-            f"{BASE_URL}/order",
+            f"{BASE_URL}/orders",
             json={
                 "user_id": user_id,
                 "restaurant_id": restaurant_id,
@@ -244,14 +281,14 @@ def add_orders(
         return f"Food API connection Error: {str(e)}"
     
 @tool
-def get_order_statistics() -> str:
-    """get order statistics.
-    use this tool whenever the user wants to see order statistics,
+def get_orders_statistics() -> str:
+    """get all orders.
+    use this tool whenever the user wants to see all orders,
     total orders, order count.
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/order/stats",
+            f"{BASE_URL}/orders/stats",
             timeout=60
         )
         
@@ -274,7 +311,7 @@ def get_user_orders(user_id: str) -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/order/user/{user_id}",
+            f"{BASE_URL}/orders/user/{user_id}",
             timeout=60
         )
 
@@ -290,13 +327,13 @@ def get_user_orders(user_id: str) -> str:
         return f"Food API connection Error: {str(e)}"
 
 @tool
-def get_order(order_id: int, user_id: str) -> str:
+def get_order(order_id: int) -> str:
     """get orders for specific order id and user id.
     use this tool whenever the user wants to see his/her orders.
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/order/{order_id}/user/{user_id}",
+            f"{BASE_URL}/orders/{order_id}",
             timeout=60
         )
 
@@ -312,14 +349,21 @@ def get_order(order_id: int, user_id: str) -> str:
         return f"Food API connection Error: {str(e)}"
     
 @tool
-def update_order_status(order_id: int, order_status: str) -> str:
+def update_order_status(order_id: int, status: str) -> str:
     """update order status for specific order id and user id.
     use this tool whenever the user wants to update his/her orders.
     """
+    
+    if not order_id:
+        return "Order ID is required"
+
+    if not status:
+        return "Order Status is required"
+    
     try:
         response = requests.patch(
             f"{BASE_URL}/orders/{order_id}/status",
-            json={"order_status": order_status},
+            json={"status": status},
             timeout=60
         )
 

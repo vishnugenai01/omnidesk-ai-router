@@ -27,7 +27,7 @@ with st.sidebar:
 
     USER_ID = st.text_input(
         "Enter your User ID",
-        value="1"
+        value=" "
     )
 
     st.divider()
@@ -174,7 +174,8 @@ if question := st.chat_input("Ask me anything..."):
         )
 
     # Other request errors
-
+ 
+ 
     except requests.exceptions.RequestException as e:
 
         st.error(
