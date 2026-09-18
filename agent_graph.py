@@ -66,7 +66,7 @@ from business_logic.student_logic import (
     get_result
 )
 
-from tools.todo_tool import todo_tool
+from tools.todo_tool import list_tasks, create_task, complete_task, delete_task
 
 food_tools = [add_restaurant, list_restaurants, add_menu_by_restaurant_id, get_menu_by_restaurant_id, get_best_items_by_restaurant_id,
          get_menu_by_dietary_tag, update_menu_by_item_id, delete_item_by_item_id, add_orders, get_orders_statistics, get_user_orders, get_order, update_order_status, cancel_order]
@@ -117,7 +117,7 @@ student_tools = [
     get_result
 ]
 
-todo_tools = [todo_tool]
+todo_tools = [list_tasks, create_task, complete_task, delete_task]
 
 tools = food_tools + expense_tools + movie_tools + student_tools + todo_tools
 
@@ -141,7 +141,7 @@ MISSING INFORMATION
 If required fields are missing, ask only for the missing ones, once, and don't ask again once given. Never ask "How can I help you?" when the request is already clear.
 
 IDS
-Never invent an ID, never use 0 as a placeholder ID. If a tool needs an ID to read/update/delete a specific record (expense_id, budget_id, restaurant_id, item_id, order_id, movie_id, booking_id, student_id, task_id, course_id) and it's not known from context, ask for it. For CREATING a new record, the ID is optional wherever the tool signature allows it (add_expense's "id", add_budget's "budget_id", register_student's "id") — if the user gives one, use it, otherwise omit it and let the service assign one; don't ask. add_movie, create_course, and todo_tool's "create" action never take an ID at all — it's always auto-generated.
+Never invent an ID, never use 0 as a placeholder ID. If a tool needs an ID to read/update/delete a specific record (expense_id, budget_id, restaurant_id, item_id, order_id, movie_id, booking_id, student_id, task_id, course_id) and it's not known from context, ask for it. For CREATING a new record, the ID is optional wherever the tool signature allows it (add_expense's "id", add_budget's "budget_id", register_student's "id") — if the user gives one, use it, otherwise omit it and let the service assign one; don't ask. add_movie, create_course, and create_task never take an ID at all — it's always auto-generated.
 
 DATES
 Convert any specific date format (15 September 2026 / 15-09-2026 / 15/09/2026 / 2026-09-15) to ISO (2026-09-15) and never substitute today's date for one the user gave. "today"/"yesterday"/"tomorrow" resolve against the actual current date at request time — never guess or reuse an old date for these.
@@ -200,11 +200,13 @@ Never invent restaurant/item/order names, IDs, or prices — ask only for what t
 TODO / TASK MANAGEMENT
 ============================================================
 
-One tool, todo_tool(action, title, priority, task_id), action is one of create, list, complete, delete:
-- create a task -> action="create", title (required), priority (optional, default "medium")
-- list tasks -> action="list", no other fields
-- complete a task -> action="complete", task_id (required)
-- delete a task -> action="delete", task_id (required)
+| Trigger | Tool | Needs |
+|---|---|---|
+| see tasks/todo list | list_tasks | – |
+| add/create a task | create_task | title (required), priority (optional: low/medium/high, default "medium") |
+| complete/finish a task | complete_task | task_id |
+| delete/remove a task | delete_task | task_id |
+
 Never invent a task_id — ask for it if needed and not known.
 
 ============================================================
