@@ -107,8 +107,8 @@ def add_menu_by_restaurant_id(
 @tool
 def get_menu_by_restaurant_id(restaurant_id: str) -> str:
     """
-    Get menu in the cart for a specific restaurant.
-    Use this tool whenever the user wants to see the items in the cart.
+    Get the full menu for a specific restaurant.
+    Use this tool whenever the user wants to see a restaurant's menu or its items.
     """
     try:
         response = requests.get(
@@ -130,8 +130,8 @@ def get_menu_by_restaurant_id(restaurant_id: str) -> str:
 @tool
 def get_best_items_by_restaurant_id(restaurant_id: str) -> str:
     """
-    Get restaurant information for a specific restaurant.
-    Use this tool whenever the user wants to see the restaurant information.
+    Get the best-rated menu items for a specific restaurant.
+    Use this tool whenever the user asks for the best/top-rated items at a restaurant.
     """
     try:
         response = requests.get(
@@ -153,8 +153,8 @@ def get_best_items_by_restaurant_id(restaurant_id: str) -> str:
 @tool
 def get_menu_by_dietary_tag(restaurant_id: str, dietary_tag: str) -> str:
     """
-    Get restaurant information for a specific restaurant.
-    Use this tool whenever the user wants to see the restaurant information.
+    Get a restaurant's menu items filtered by a dietary tag (e.g. "veg", "vegan", "gluten-free").
+    Use this tool whenever the user asks for menu items matching a specific dietary requirement.
     """
     try:
         response = requests.get(

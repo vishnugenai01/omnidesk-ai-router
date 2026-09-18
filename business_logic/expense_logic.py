@@ -1,3 +1,5 @@
+from typing import Optional
+
 from langchain_core.tools import tool
 import requests
 
@@ -11,29 +13,26 @@ BASE_URL = "https://expense-tracker-7r84.onrender.com"
 
 @tool
 def add_expense(
-    id: int,
     title: str,
     amount: float,
     category: str,
     date: str,
     user_id: int,
-    user_name: str
+    user_name: str,
+    id: Optional[int] = None
 ) -> str:
     """
     Create a new expense.
 
     Args:
-        id: Unique ID of the expense.
         title: Title or name of the expense.
         amount: Amount spent.
         category: Expense category.
         date: Date of the expense.
         user_id: ID of the user.
         user_name: Name of the user.
+        id: Optional expense ID. Omit it to let the service assign one automatically.
     """
-
-    if id <= 0:
-        return "Please provide a valid expense ID."
 
     if not title:
         return "Please provide the expense title."
@@ -54,7 +53,6 @@ def add_expense(
         return "Please provide the user_name."
 
     data = {
-        "id": id,
         "title": title,
         "amount": amount,
         "category": category,
@@ -62,6 +60,9 @@ def add_expense(
         "user_id": user_id,
         "user_name": user_name
     }
+
+    if id is not None:
+        data["id"] = id
 
     try:
         response = requests.post(
@@ -250,15 +251,18 @@ def check_expense_service_health() -> str:
 
 @tool
 def add_budget(
-    budget_id : int,
     budget_amount: float,
     total_spent: float = 0.0,
     remaining_amt: float = 0.0,
     month: str = "",
     user_id: int = 1,
-    user_name: str = ""
+    user_name: str = "",
+    budget_id: Optional[int] = None
 ) -> str:
-    """Create a new monthly budget."""
+    """Create a new monthly budget.
+
+    budget_id is optional — omit it to let the service assign one automatically.
+    """
 
     print(
         f"Request body is budget: {budget_amount}, "
@@ -286,7 +290,6 @@ def add_budget(
         remaining_amt = budget_amount - total_spent
 
     data = {
-        "budget_id" : budget_id,
         "budget_amount": budget_amount,
         "total_spent": total_spent,
         "remaining_amt": remaining_amt,
@@ -294,6 +297,9 @@ def add_budget(
         "user_id": user_id,
         "user_name": user_name
     }
+
+    if budget_id is not None:
+        data["budget_id"] = budget_id
 
     print(f"Passing data is {data}")
 

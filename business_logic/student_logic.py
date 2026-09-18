@@ -31,24 +31,27 @@ def list_students() -> str:
 #register a student
 @tool
 def register_student(
-    id: int,
     name: str,
     email: str,
     department: str,
-    year: int
+    year: int,
+    id: Optional[int] = None
 ) -> str:
     """
-    Register a new student using the student ID, name, email,
-    department and year.
+    Register a new student using the name, email, department and
+    year. The student ID is optional — omit it to let the service
+    assign one automatically.
     """
 
     student_data = {
-        "id": id,
         "name": name,
         "email": email,
         "department": department,
         "year": year
     }
+
+    if id is not None:
+        student_data["id"] = id
 
     try:
         print("Request:", student_data)
