@@ -3,18 +3,40 @@ import requests
 
 API_URL = "http://127.0.0.1:8000/ask"
 
+st.set_page_config(
+    page_title="OmniDesk AI Assistant",
+    page_icon="🤖"
+)
+
 st.title("OmniDesk AI Assistant")
 
 st.caption(
-    "One chat box - currently live for Expense Tracking (more services coming soon)."
+    "One chat box, five services — ask about tasks, food orders, "
+    "students, movie bookings, or expenses."
 )
 
 
 with st.sidebar:
+    st.subheader("User")
+    USER_ID = st.text_input(
+        "Enter your User ID",
+        value="1"
+    )
+    st.divider()
+
     st.subheader("Try asking:")
+
+    st.write("- I want Kadai Paneer")
+    st.write("- Show me my orders")
     st.write("- Add a ₹400 expense for lunch today, category food")
-    st.write("- What's my expense summary?")
-    st.write("- Show me all my expenses this month")
+
+if not USER_ID:
+    st.warning(
+        "Please enter your User ID to start chatting."
+    )
+    st.stop()
+
+# CHAT HISTORY - STREAMLIT DISPLAY
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -22,11 +44,13 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
 
     with st.chat_message(msg["role"]):
-        st.write(msg["content"])
+        st.markdown(msg["content"])
+
+# CHAT INPUT
 
 if question := st.chat_input("Ask me anything..."):
 
-    
+# Display user message
     st.session_state.messages.append(
         {
             "role": "user",
@@ -34,42 +58,54 @@ if question := st.chat_input("Ask me anything..."):
         }
     )
 
-    # Display user message immediately
-
     with st.chat_message("user"):
-        st.write(question)
+        st.markdown(question)
 
-
-    
-    payload = {
-        "question": question
-    }
-
+    # Call FastAPI
 
     try:
-
         response = requests.post(
             API_URL,
-            json=payload,
-            timeout=90
+            json={
+                "user_id": USER_ID,
+                "question": question
+            },
+            timeout=120
         )
+        # Check HTTP status
+        if response.status_code != 200:
 
-        # If FastAPI returns 4xx/5xx
-        response.raise_for_status()
+            st.error(
+                f"Backend returned HTTP {response.status_code}"
+            )
+            st.code(response.text)
+            st.stop()
+        try:
 
-        data = response.json()
+            data = response.json()
 
+        except requests.exceptions.JSONDecodeError:
+            st.error(
+                "Backend returned invalid JSON."
+            )
+            st.code(response.text)
+            st.stop()
         # Get answer
-        answer = data.get(
-            "answer",
-            "No answer received from the backend."
+
+        answer = data.get("answer")
+
+        tools_used = data.get("tools_used",[])
+
+        routed_to = (
+            ", ".join(tools_used)
+            if tools_used
+            else "general chat"
         )
 
-        # Get tools used
-        tools_used = ", ".join(
-            data.get("tools_used", [])
-        ) or "general chat"
-
+        if not answer:
+            st.error(
+                "Unable to process at the moment"
+            )
 
         st.session_state.messages.append(
             {
@@ -77,38 +113,27 @@ if question := st.chat_input("Ask me anything..."):
                 "content": answer
             }
         )
-
+        # Display assistant response
         with st.chat_message("assistant"):
 
-            st.write(answer)
+            st.markdown(answer)
 
             st.caption(
-                f"Routed to: {tools_used}"
+                f"Routed to: {routed_to}"
             )
-
-
-    except requests.exceptions.HTTPError as e:
-
-        # Show FastAPI error response
+    # Connection error
+    except requests.exceptions.ConnectionError:
         st.error(
-            f"Backend returned an error: {e}"
+            "Could not connect to the FastAPI server."
         )
+    # Timeout
 
-        try:
-            st.json(response.json())
-        except Exception:
-            st.write(response.text)
-
-
+    except requests.exceptions.Timeout:
+        st.error(
+            "The request timed out."
+        )
+    # Other request errors
     except requests.exceptions.RequestException as e:
-
         st.error(
-            f"Failed to communicate with the backend: {e}"
-        )
-
-
-    except Exception as e:
-
-        st.error(
-            f"Unexpected error: {e}"
+            f"Request failed: {str(e)}"
         )
