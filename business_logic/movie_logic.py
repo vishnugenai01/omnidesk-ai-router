@@ -72,7 +72,6 @@ def add_movie(
     theatre: Optional[str] = None,
     theatre_name: Optional[str] = None,
     Theatre_name: Optional[str] = None,
-    description: Optional[str] = "Action movie",
     language: Optional[str] = "Telugu",
     ticket_price: int = 200,
     total_seats: int = 100,
@@ -80,13 +79,12 @@ def add_movie(
     """Add a new movie to the Movie Booking system.
 
     Args:
-        title: The movie's title. Optional.
+        title: The movie's title. Required.
         movie_name: Alternative title parameter. Optional.
         Movie_name: Capitalized title parameter. Optional.
-        theatre: The theatre showing the movie. Optional.
+        theatre: The theatre showing the movie. Required.
         theatre_name: Alternative theatre parameter. Optional.
         Theatre_name: Capitalized theatre parameter. Optional.
-        description: The movie's description or genre. Optional.
         language: The movie's language. Optional.
         ticket_price: Ticket price as an integer. Defaults to 200.
         total_seats: Total seats available as an integer. Defaults to 100.
@@ -97,25 +95,12 @@ def add_movie(
     if not final_title or not final_theatre:
         return "Please provide both the movie title and the theatre name."
 
-    def clean_str(val, default=""):
-        if val is None:
-            return default
-        return str(val).replace('"', '').replace("'", "").strip()
-
-    def clean_int(val, default=200):
-        try:
-            cleaned = str(val).replace('"', '').replace("'", "").strip()
-            return int(cleaned)
-        except (ValueError, TypeError):
-            return default
-
     payload = {
-        "movie_name": clean_str(final_title),
-        "theatre_name": clean_str(final_theatre),
-        "description": clean_str(description, "Action movie"),
-        "language": clean_str(language, "Telugu"),
-        "ticket_price": clean_int(ticket_price, 200),
-        "total_seats": clean_int(total_seats, 100),
+        "Movie_name": str(final_title).strip(),
+        "Theatre_name": str(final_theatre).strip(),
+        "Language": str(language or "Telugu").strip(),
+        "Ticket_price": int(ticket_price),
+        "Total_seats": int(total_seats),
     }
     
     try:
