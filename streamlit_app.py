@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
 
-API_BASE = "http://127.0.0.1:8000"
+# API_BASE = "http://127.0.0.1:8000"
+API_BASE = "https://omnidesk-ai-router.onrender.com/"
 ASK_URL = f"{API_BASE}/ask"
 HEALTH_URL = f"{API_BASE}/health"
 
@@ -27,9 +28,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ------------------------------------------------------------
-# STYLE
-# ------------------------------------------------------------
+# STYLE7
 
 st.markdown(
     """
