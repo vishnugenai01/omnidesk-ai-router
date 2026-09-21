@@ -49,7 +49,7 @@ def list_restaurants() -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/restaurants",
+            f"{BASE_URL}/restaurants/",
             timeout=60
         )
         
