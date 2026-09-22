@@ -2,8 +2,12 @@ from langchain_core.tools import tool
 from typing import Optional
 import requests
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # Make sure this is your EXACT active Render URL
-BASE_URL = "https://movie-booking-fastapi.onrender.com"
+movie_url = os.getenv("movie_URL")
 TIMEOUT = 60
 
 
@@ -30,7 +34,7 @@ def _handle_error(e: requests.exceptions.RequestException) -> str:
 def list_movies() -> str:
     """List every movie currently available for booking."""
     try:
-        res = requests.get(f"{BASE_URL}/movies", timeout=TIMEOUT)
+        res = requests.get(f"{movie_url}/movies", timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -44,7 +48,7 @@ def get_movies_by_language(language: str) -> str:
         language: The language to filter movies by, e.g. "Telugu", "English", "Hindi".
     """
     try:
-        res = requests.get(f"{BASE_URL}/movies/language/{language}", timeout=TIMEOUT)
+        res = requests.get(f"{movie_url}/movies/language/{language}", timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -58,7 +62,7 @@ def get_movie(movie_id: int) -> str:
         movie_id: The ID of the movie to look up.
     """
     try:
-        res = requests.get(f"{BASE_URL}/movies/{movie_id}", timeout=TIMEOUT)
+        res = requests.get(f"{movie_url}/movies/{movie_id}", timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -104,7 +108,7 @@ def add_movie(
     }
     
     try:
-        res = requests.post(f"{BASE_URL}/movies", json=payload, timeout=TIMEOUT)
+        res = requests.post(f"{movie_url}/movies", json=payload, timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -148,7 +152,7 @@ def update_movie(
     if not payload:
         return "No fields provided to update. Specify at least one field to change."
     try:
-        res = requests.put(f"{BASE_URL}/movies/{movie_id}", json=payload, timeout=TIMEOUT)
+        res = requests.put(f"{movie_url}/movies/{movie_id}", json=payload, timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -162,7 +166,7 @@ def delete_movie(movie_id: int) -> str:
         movie_id: The ID of the movie to delete.
     """
     try:
-        res = requests.delete(f"{BASE_URL}/movies/{movie_id}", timeout=TIMEOUT)
+        res = requests.delete(f"{movie_url}/movies/{movie_id}", timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -176,7 +180,7 @@ def get_seat_count(movie_id: int) -> str:
         movie_id: The ID of the movie to check seat availability for.
     """
     try:
-        res = requests.get(f"{BASE_URL}/movies/{movie_id}/seats", timeout=TIMEOUT)
+        res = requests.get(f"{movie_url}/movies/{movie_id}/seats", timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -191,7 +195,7 @@ def book_tickets(title: str, seats: int = 1, language: str = "Telugu") -> str:
     """Books movie tickets. Pass the title of the movie, seats count, and language."""
     try:
         # 1. Fetch the list of movies to ensure it exists and grab metadata if needed
-        res = requests.get(f"{BASE_URL}/movies", timeout=60)
+        res = requests.get(f"{movie_url}/movies", timeout=60)
         if not res.ok:
             return _handle_response(res)
             
@@ -220,7 +224,7 @@ def book_tickets(title: str, seats: int = 1, language: str = "Telugu") -> str:
         }
         
         book_res = requests.post(
-            f"{BASE_URL}/bookings", 
+            f"{movie_url}/bookings", 
             json=payload, 
             timeout=60
         )
@@ -240,7 +244,7 @@ def get_booking(booking_id: int) -> str:
         booking_id: The ID of the booking to look up.
     """
     try:
-        res = requests.get(f"{BASE_URL}/bookings/{booking_id}", timeout=TIMEOUT)
+        res = requests.get(f"{movie_url}/bookings/{booking_id}", timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)
@@ -254,7 +258,7 @@ def cancel_booking(booking_id: int) -> str:
         booking_id: The ID of the booking to cancel.
     """
     try:
-        res = requests.delete(f"{BASE_URL}/bookings/{booking_id}", timeout=TIMEOUT)
+        res = requests.delete(f"{movie_url}/bookings/{booking_id}", timeout=TIMEOUT)
         return _handle_response(res)
     except requests.exceptions.RequestException as e:
         return _handle_error(e)

@@ -2,10 +2,11 @@ from typing import Optional
 
 from langchain_core.tools import tool
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-
-BASE_URL = "https://expense-tracker-7r84.onrender.com"
-
+expense_url = os.getenv("expense_URL")
 
 # ============================================================
 # EXPENSE TOOL
@@ -66,7 +67,7 @@ def add_expense(
 
     try:
         response = requests.post(
-            f"{BASE_URL}/tracker/expenses",
+            f"{expense_url}/tracker/expenses",
             json=data,
             timeout=30
         )
@@ -87,7 +88,7 @@ def list_expenses() -> str:
     """Get all expenses."""
 
     response = requests.get(
-        f"{BASE_URL}/tracker/expenses",
+        f"{expense_url}/tracker/expenses",
         timeout=30
     )
 
@@ -102,7 +103,7 @@ def get_expense(expense_id: int) -> str:
     """
 
     response = requests.get(
-        f"{BASE_URL}/tracker/expenses/{expense_id}",
+        f"{expense_url}/tracker/expenses/{expense_id}",
         timeout=30
     )
 
@@ -159,7 +160,7 @@ def update_expense(
 
     try:
         response = requests.put(
-            f"{BASE_URL}/tracker/expenses/{expense_id}",
+            f"{expense_url}/tracker/expenses/{expense_id}",
             json=data,
             timeout=30
         )
@@ -180,7 +181,7 @@ def delete_expense(expense_id: int) -> str:
     """
 
     response = requests.delete(
-        f"{BASE_URL}/tracker/expenses/{expense_id}",
+        f"{expense_url}/tracker/expenses/{expense_id}",
         timeout=60
     )
 
@@ -196,7 +197,7 @@ def get_expenses_by_category(category: str) -> str:
     """
 
     response = requests.get(
-        f"{BASE_URL}/tracker/expenses/category/{category}",
+        f"{expense_url}/tracker/expenses/category/{category}",
         timeout=60
     )
 
@@ -211,7 +212,7 @@ def get_expenses_by_date(date: str) -> str:
     """
 
     response = requests.get(
-        f"{BASE_URL}/tracker/expenses/date/{date}",
+        f"{expense_url}/tracker/expenses/date/{date}",
         timeout=60
     )
 
@@ -226,7 +227,7 @@ def get_expenses_by_user(user_id: int) -> str:
     """
 
     response = requests.get(
-        f"{BASE_URL}/tracker/expenses/user/{user_id}",
+        f"{expense_url}/tracker/expenses/user/{user_id}",
         timeout=60
     )
 
@@ -238,7 +239,7 @@ def check_expense_service_health() -> str:
     """Check the health of the expense service."""
 
     response = requests.get(
-        f"{BASE_URL}/tracker/health",
+        f"{expense_url}/tracker/health",
         timeout=60
     )
 
@@ -305,7 +306,7 @@ def add_budget(
 
     try:
         res = requests.post(
-            f"{BASE_URL}/budget/budget",
+            f"{expense_url}/budget/budget",
             json=data
         )
 
@@ -346,7 +347,7 @@ def get_budget_status() -> str:
 
     try:
         res = requests.get(
-            f"{BASE_URL}/budget/status",
+            f"{expense_url}/budget/status",
             timeout=60
         )
 
@@ -371,11 +372,11 @@ def get_budget(budget_id: int) -> str:
 
     try:
         res = requests.get(
-            f"{BASE_URL}/budget/budget/{budget_id}",
+            f"{expense_url}/budget/budget/{budget_id}",
             timeout=60
         )
 
-        print(f"GET BUDGET URL: {BASE_URL}/budget/budget/{budget_id}")
+        print(f"GET BUDGET URL: {expense_url}/budget/budget/{budget_id}")
         print(f"GET BUDGET STATUS: {res.status_code}")
         print(f"GET BUDGET RESPONSE: {res.text}")
 
@@ -408,7 +409,7 @@ def get_budget_by_user(user_id: int) -> str:
         return "Please provide a valid user_id."
 
     try:
-        url = f"{BASE_URL}/budget/budget/user/{user_id}"
+        url = f"{expense_url}/budget/budget/user/{user_id}"
 
         res = requests.get(
             url,
@@ -439,7 +440,7 @@ def check_budget_service_health() -> str:
 
     try:
         res = requests.get(
-            f"{BASE_URL}/budget/health",
+            f"{expense_url}/budget/health",
             timeout=60
         )
 

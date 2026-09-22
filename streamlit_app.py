@@ -1,10 +1,16 @@
 import streamlit as st
 import requests
+import os
+from dotenv import load_dotenv
 
 # API_BASE = "http://127.0.0.1:8000"
-API_BASE = "https://omnidesk-ai-router.onrender.com"
-ASK_URL = f"{API_BASE}/ask"
-HEALTH_URL = f"{API_BASE}/health"
+# API_BASE = "https://omnidesk-ai-router.onrender.com"
+
+# API_BASE = "https://student-management-d2uq.onrender.com"
+
+API = os.getenv("API_BASE")
+ASK_URL = f"{API}/ask"
+HEALTH_URL = f"{API}/health"
 
 SERVICES = [
     ("📝", "Todo"),
@@ -13,6 +19,7 @@ SERVICES = [
     ("🎬", "Movies"),
     ("💰", "Expense"),
 ]
+
 
 SUGGESTIONS = [
     ("🍛", "I want Kadai Paneer"),

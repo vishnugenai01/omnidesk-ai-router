@@ -1,11 +1,14 @@
 from langchain_core.tools import tool
 from typing import Optional, Literal
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # RENDER STUDENT MANAGEMENT API
 
-BASE_URL = "https://student-management-d2uq.onrender.com"
-
+student_url = os.getenv("student_URL")
 #LIST STUDENTS
 
 @tool
@@ -18,7 +21,7 @@ def list_students() -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/students",
+            f"{student_url}/students",
             timeout=60
         )
         response.raise_for_status()
@@ -57,7 +60,7 @@ def register_student(
         print("Request:", student_data)
 
         response = requests.post(
-            f"{BASE_URL}/",
+            f"{student_url}/",
             json=student_data,
             timeout=60
         )
@@ -84,7 +87,7 @@ def get_student(student_id: int)-> str:
         """
         try:
             response = requests.get(
-                f"{BASE_URL}/students/{student_id}",
+                f"{student_url}/students/{student_id}",
                         timeout=60
                     )
             if response.status_code ==200:
@@ -125,7 +128,7 @@ def update_student(
 
     try:
         response = requests.put(
-            f"{BASE_URL}/students/{student_id}",
+            f"{student_url}/students/{student_id}",
             params={"student_id": student_id},
             json=student_data,
             timeout=60
@@ -159,7 +162,7 @@ def delete_student(student_id: int) -> str:
 
     try:
         response = requests.delete(
-            f"{BASE_URL}/students/{student_id}",
+            f"{student_url}/students/{student_id}",
             timeout=60
         )
 
@@ -184,7 +187,7 @@ def list_courses() -> str:
 
     try:
         response = requests.get(
-            f"{BASE_URL}/courses",
+            f"{student_url}/courses",
             timeout=60
         )
         if not response.ok:
@@ -222,7 +225,7 @@ def create_course(
 
     try:
         response = requests.post(
-            f"{BASE_URL}/courses",
+            f"{student_url}/courses",
             json=course_data,
             timeout=60
         )
@@ -251,7 +254,7 @@ def enroll_student(student_id: int, course_id: int):
     """
     try:
         response = requests.post(
-            f"{BASE_URL}/students/{student_id}/enroll/{course_id}",
+            f"{student_url}/students/{student_id}/enroll/{course_id}",
             timeout=60
         )
 
@@ -283,7 +286,7 @@ def add_marks(student_id: int, subject_name: str, marks: float):
 
     try:
         response = requests.post(
-            f"{BASE_URL}/students/{student_id}/marks",
+            f"{student_url}/students/{student_id}/marks",
             json=marks_data,
             timeout=60
         )
@@ -320,7 +323,7 @@ def get_result(student_id: int):
 
     try:
         response = requests.get(
-            f"{BASE_URL}/students/{student_id}/result",
+            f"{student_url}/students/{student_id}/result",
             timeout=60
         )
 

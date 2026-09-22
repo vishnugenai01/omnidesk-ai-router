@@ -1,15 +1,16 @@
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-
-BASE_URL = "https://to-do-api-10.onrender.com"
+todo_url = os.getenv("todo_URL")
 TIMEOUT = 60
-
 
 def list_tasks() -> str:
     """Get all Todo tasks."""
     try:
         response = requests.get(
-            f"{BASE_URL}/tasks",
+            f"{todo_url}/tasks",
             timeout=TIMEOUT
         )
 
@@ -33,7 +34,7 @@ def create_task(title: str, priority: str = "medium") -> str:
 
     try:
         response = requests.post(
-            f"{BASE_URL}/tasks",
+            f"{todo_url}/tasks",
             json={
                 "title": title,
                 "priority": priority
@@ -58,7 +59,7 @@ def complete_task(task_id: int) -> str:
 
     try:
         response = requests.patch(
-            f"{BASE_URL}/tasks/{task_id}/complete",
+            f"{todo_url}/tasks/{task_id}/complete",
             timeout=TIMEOUT
         )
 
@@ -79,7 +80,7 @@ def delete_task(task_id: int) -> str:
 
     try:
         response = requests.delete(
-            f"{BASE_URL}/tasks/{task_id}",
+            f"{todo_url}/tasks/{task_id}",
             timeout=TIMEOUT
         )
 

@@ -1,8 +1,12 @@
 from langchain_core.tools import tool
 from typing import Literal
 import requests
+import os
+from dotenv import load_dotenv
 
-BASE_URL = "https://food-order-api-vishnu.onrender.com"
+load_dotenv()
+
+food_url = os.getenv("food_URL")
 
 
 @tool
@@ -24,7 +28,7 @@ def add_restaurant(name: str, location: str) -> str:
     
     try:
         response = requests.post(
-             f"{BASE_URL}/restaurants",
+             f"{food_url}/restaurants",
              json={"name": name, "location": location},
              timeout=60
          )
@@ -49,7 +53,7 @@ def list_restaurants() -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/restaurants/list",
+            f"{food_url}/restaurants/list",
             timeout=60
         )
         
@@ -80,7 +84,7 @@ def add_menu_by_restaurant_id(
     """
     try:  
         response = requests.post(
-            f"{BASE_URL}/restaurants/{restaurant_id}/menu",
+            f"{food_url}/restaurants/{restaurant_id}/menu",
             json={
                 "restaurant_id": restaurant_id,
                 "name": name,
@@ -112,7 +116,7 @@ def get_menu_by_restaurant_id(restaurant_id: str) -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/restaurants/{restaurant_id}/menu",
+            f"{food_url}/restaurants/{restaurant_id}/menu",
             timeout=60
         )
 
@@ -135,7 +139,7 @@ def get_best_items_by_restaurant_id(restaurant_id: str) -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/menu/best/rated/{restaurant_id}",
+            f"{food_url}/menu/best/rated/{restaurant_id}",
             timeout=60
         )
 
@@ -158,7 +162,7 @@ def get_menu_by_dietary_tag(restaurant_id: str, dietary_tag: str) -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/restaurants/{restaurant_id}/dietary_tag/{dietary_tag}",
+            f"{food_url}/restaurants/{restaurant_id}/dietary_tag/{dietary_tag}",
             timeout=60
         )
 
@@ -189,7 +193,7 @@ def update_menu_by_item_id(
     """
     try:
         response = requests.put(
-            f"{BASE_URL}/menu/{item_id}",
+            f"{food_url}/menu/{item_id}",
             json={
                 "name": name,
                 "price": price,
@@ -219,7 +223,7 @@ def delete_item_by_item_id(item_id: str) -> str:
     """
     try:
         response = requests.delete(
-            f"{BASE_URL}/menu/{item_id}",
+            f"{food_url}/menu/{item_id}",
             timeout=60
         )
 
@@ -259,7 +263,7 @@ def add_orders(
     
     try:
         response = requests.post(
-            f"{BASE_URL}/orders",
+            f"{food_url}/orders",
             json={
                 "user_id": user_id,
                 "restaurant_id": restaurant_id,
@@ -288,7 +292,7 @@ def get_orders_statistics() -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/orders/stats",
+            f"{food_url}/orders/stats",
             timeout=60
         )
         
@@ -311,7 +315,7 @@ def get_user_orders(user_id: str) -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/orders/user/{user_id}",
+            f"{food_url}/orders/user/{user_id}",
             timeout=60
         )
 
@@ -333,7 +337,7 @@ def get_order(order_id: int) -> str:
     """
     try:
         response = requests.get(
-            f"{BASE_URL}/orders/{order_id}",
+            f"{food_url}/orders/{order_id}",
             timeout=60
         )
 
@@ -362,7 +366,7 @@ def update_order_status(order_id: int, status: str) -> str:
     
     try:
         response = requests.patch(
-            f"{BASE_URL}/orders/{order_id}/status",
+            f"{food_url}/orders/{order_id}/status",
             json={"status": status},
             timeout=60
         )
@@ -385,7 +389,7 @@ def cancel_order(order_id: int) -> str:
     """
     try:
         response = requests.delete(
-            f"{BASE_URL}/orders/{order_id}",
+            f"{food_url}/orders/{order_id}",
             timeout=60
         )
 
