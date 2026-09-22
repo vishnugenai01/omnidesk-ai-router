@@ -3,6 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
+load_dotenv()
 # API_BASE = "http://127.0.0.1:8000"
 # API_BASE = "https://omnidesk-ai-router.onrender.com"
 
