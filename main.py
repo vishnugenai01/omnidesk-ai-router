@@ -33,6 +33,7 @@ def ask(request: AskRequest, db: Session = Depends(get_db)):
 
     history = conversation_history[user_id]
     history.append(HumanMessage(content=request.question))
+    history = history[-2:]
     result = app_graph.invoke({"messages": history})
     messages = result["messages"]
     conversation_history[user_id] = messages
